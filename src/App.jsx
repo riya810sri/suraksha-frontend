@@ -85,21 +85,38 @@ function App() {
           <Routes>
             <Route path="/" element={<AnimatedPage><Home /></AnimatedPage>} />
             <Route path="/public-map" element={<AnimatedPage><PublicMap /></AnimatedPage>} />
-            <Route path="/dashboard" element={
-              <AnimatedPage>
-                <ProtectedRoute><Dashboard /></ProtectedRoute>
-              </AnimatedPage>
-            } />
-            <Route path="/community" element={
-              <AnimatedPage>
-                <ProtectedRoute><Community /></ProtectedRoute>
-              </AnimatedPage>
-            } />
-            <Route path="/history" element={
-              <AnimatedPage>
-                <ProtectedRoute><History /></ProtectedRoute>
-              </AnimatedPage>
-            } />
+           <Route 
+  path="/dashboard" 
+  element={
+    <AnimatedPage>
+      <ProtectedRoute user={currentUser}>
+        <Dashboard />
+      </ProtectedRoute>
+    </AnimatedPage>
+  } 
+/>
+
+<Route 
+  path="/community" 
+  element={
+    <AnimatedPage>
+      <ProtectedRoute user={currentUser}>
+        <Community />
+      </ProtectedRoute>
+    </AnimatedPage>
+  } 
+/>
+
+<Route 
+  path="/history" 
+  element={
+    <AnimatedPage>
+      <ProtectedRoute user={currentUser}>
+        <History />
+      </ProtectedRoute>
+    </AnimatedPage>
+  } 
+/>
             <Route path="/hackathon-demo" element={<AnimatedPage><HackathonDemo /></AnimatedPage>} />
             <Route path="/login" element={<AnimatedPage><Login /></AnimatedPage>} />
             <Route path="/signup" element={<AnimatedPage><Signup /></AnimatedPage>} />
