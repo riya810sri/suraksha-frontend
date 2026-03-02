@@ -8,13 +8,13 @@ import { getDatabase } from "firebase/database";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCnk_0PNkbovIp7i4c5k6iUpc3_fpJVvpc",
-  authDomain: "womern-safety.firebaseapp.com",
-  projectId: "womern-safety",
-  storageBucket: "womern-safety.firebasestorage.app",
-  messagingSenderId: "722733419923",
-  appId: "1:722733419923:web:1e195760e86b08c1d3ec66",
-  measurementId: "G-M02ELJPLM9"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
