@@ -1,12 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { 
-  Activity, 
-  Thermometer, 
-  Droplets, 
-  MapPin, 
-  Bell, 
-  Wifi, 
+import {
+  Activity,
+  Thermometer,
+  Droplets,
+  MapPin,
+  Bell,
+  Wifi,
   WifiOff,
   RefreshCw,
   TrendingUp,
@@ -15,7 +15,9 @@ import {
   Clock,
   Cpu,
   Signal,
-  Zap
+  Zap,
+  ShoppingCart,
+  ArrowRight
 } from 'lucide-react';
 import { ref, onValue, push, update } from 'firebase/database';
 import { database, db } from '../firebase';
@@ -212,7 +214,17 @@ const HackathonDemo = () => {
                   {isConnected ? 'Connected' : 'Disconnected'}
                 </span>
               </div>
-              
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => window.open('https://wa.me/919369508929?text=Hi!%20I%27m%20interested%20in%20purchasing%20the%20ESP32%20device%20for%20Suraksha.', '_blank')}
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-full hover:shadow-lg transition-all"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                <span className="hidden sm:inline">Order ESP32</span>
+              </motion.button>
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

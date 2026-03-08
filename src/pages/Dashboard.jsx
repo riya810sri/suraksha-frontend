@@ -30,6 +30,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUserProfile, getUserStats, getEmergencyContacts, getUserIncidents, addEmergencyContact, addSOSAlert } from '../services/firestoreService';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
+import { notifyAllEmergencyContacts, createLocationLink, sendSOSViaBackend, sendSOSViaTelegram, isValidPhoneNumber } from '../services/emergencyNotificationService';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -196,16 +197,32 @@ const Dashboard = () => {
       return;
     }
 
+    // Check if emergency contacts exist
+    if (!contacts || contacts.length === 0) {
+      const addContact = window.confirm('⚠️ No Emergency Contacts!\n\nYou haven\'t added any emergency contacts yet.\n\nWould you like to add one now?');
+      if (addContact) {
+        setShowAddContact(true);
+      }
+      return;
+    }
+
+    // Validate at least one valid phone number
+    const validContacts = contacts.filter(c => isValidPhoneNumber(c.phone));
+    if (validContacts.length === 0) {
+      alert('⚠️ No Valid Phone Numbers!\n\nPlease add emergency contacts with valid phone numbers (at least 10 digits).');
+      return;
+    }
+
     try {
       console.log('Sending SOS alert for user:', currentUser.uid);
-      
+
       // Get user's current location
       const location = await new Promise((resolve, reject) => {
         if (!navigator.geolocation) {
           reject(new Error('Geolocation not supported'));
           return;
         }
-        
+
         navigator.geolocation.getCurrentPosition(
           (position) => {
             resolve({
@@ -232,13 +249,98 @@ const Dashboard = () => {
         contactsNotified: contacts.length
       });
 
-      // Show success message
-      alert(`🚨 SOS ALERT SENT! 🚨\n\nYour emergency contacts have been notified.\n\nLocation:\nLat: ${location.latitude}\nLng: ${location.longitude}\n\nStay safe! 🙏`);
+      // 🚨 NOTIFY ALL EMERGENCY CONTACTS 🚨
+      const userName = userProfile?.name || currentUser?.email || 'User';
+      const userEmail = currentUser?.email || 'User';
       
+      let notificationResults;
+      let alertMode = 'frontend';
+      
+      // Check which mode to use
+      const useTelegram = import.meta.env.VITE_USE_TELEGRAM === 'true';
+      const useBackend = import.meta.env.VITE_USE_BACKEND === 'true';
+      
+      if (useTelegram) {
+        // FREE Telegram Mode ✅
+        alertMode = 'telegram';
+        try {
+          notificationResults = await sendSOSViaTelegram(userName, userEmail, location, validContacts);
+        } catch (telegramError) {
+          console.error('Telegram failed, falling back to frontend mode:', telegramError);
+          notificationResults = notifyAllEmergencyContacts(validContacts, userName, location);
+          alertMode = 'frontend';
+        }
+      } else if (useBackend) {
+        // PAID Twilio Mode
+        alertMode = 'twilio';
+        try {
+          notificationResults = await sendSOSViaBackend(userName, userEmail, location, validContacts);
+        } catch (backendError) {
+          console.error('Backend failed, falling back to frontend mode:', backendError);
+          notificationResults = notifyAllEmergencyContacts(validContacts, userName, location);
+          alertMode = 'frontend';
+        }
+      } else {
+        // Frontend Mode (Fallback)
+        notificationResults = notifyAllEmergencyContacts(validContacts, userName, location);
+      }
+
+      console.log('Emergency contacts notified:', notificationResults);
+      console.log('Alert mode:', alertMode);
+
+      // Show success message with notification details
+      const locationLink = createLocationLink(location);
+      
+      let successMessage = `🚨 SOS ALERT SENT! 🚨\n\n`;
+      successMessage += `✅ Alert saved to Firestore\n`;
+      
+      if (alertMode === 'telegram') {
+        successMessage += `✅ ${notificationResults.sent || 0} Telegram messages sent\n`;
+        if (notificationResults.failed > 0) {
+          successMessage += `⚠️ ${notificationResults.failed} failed\n`;
+        }
+        successMessage += `\n💰 Mode: FREE (Telegram)`;
+      } else if (alertMode === 'twilio') {
+        successMessage += `✅ ${notificationResults.smsSent || 0} SMS sent\n`;
+        successMessage += `✅ ${notificationResults.callsInitiated || 0} calls initiated\n`;
+        successMessage += `\n💰 Mode: PAID (Twilio)`;
+      } else {
+        successMessage += `✅ ${notificationResults.smsSent || 0} SMS opened\n`;
+        successMessage += `✅ ${notificationResults.callsInitiated || 0} calls initiated\n`;
+        successMessage += `\n⚠️ Note: Please send from your device`;
+        successMessage += `\n💰 Mode: FREE (Manual)`;
+      }
+      
+      if (notificationResults.invalid > 0) {
+        successMessage += `\n⚠️ ${notificationResults.invalid} invalid phone number(s)`;
+      }
+      
+      successMessage += `\n\n📍 Your Location:\nLat: ${location.latitude}\nLng: ${location.longitude}`;
+      successMessage += `\n\n🗺️ Location Link:\n${locationLink}`;
+      
+      if (notificationResults.details && notificationResults.details.length > 0) {
+        successMessage += `\n\n📞 Contacts Notified:`;
+        notificationResults.details.forEach((detail, idx) => {
+          let status = '';
+          if (alertMode === 'telegram') {
+            status = detail.success ? '✅' : '❌';
+          } else {
+            const smsStatus = detail.smsSuccess ? '✅ SMS' : '⏳ SMS';
+            const callStatus = detail.callSuccess ? '✅ Call' : '⏳ Call';
+            status = `${smsStatus}, ${callStatus}`;
+          }
+          successMessage += `\n  • ${detail.name}: ${status}`;
+        });
+      }
+      
+      successMessage += `\n\nStay safe! 🙏`;
+
+      alert(successMessage);
+
       // Refresh incidents
       const userIncidents = await getUserIncidents(currentUser.uid);
       setIncidents(userIncidents);
-      
+
     } catch (error) {
       console.error('SOS Error:', error);
       alert(`SOS Alert Error: ${error.message}\n\nPlease enable location permissions and try again.`);

@@ -14,10 +14,11 @@ const Header = () => {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Public Map', path: '/public-map' },
+    { name: 'Suraksha Map', path: '/public-map' },
     { name: 'Dashboard', path: '/dashboard' },
     { name: 'Community', path: '/community' },
     { name: 'History', path: '/history' },
+    { name: 'Demo', path: '/hackathon-demo' },
   ];
 
   const isActive = (path) => location.pathname === path;

@@ -172,27 +172,8 @@ const Login = () => {
             </p>
           </div>
 
-          {/* Social Login */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center justify-center space-x-2 px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-all"
-            >
-              <Chrome className="h-5 w-5" />
-              <span className="font-medium">Google</span>
-            </motion.button>
-          </div>
-
-          {/* Divider */}
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">Or continue with email</span>
-            </div>
-          </div>
+         
+          
 
           {/* Error Message */}
           {error && (

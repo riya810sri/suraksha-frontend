@@ -41,6 +41,13 @@ const Home = () => {
       color: 'text-green-600',
       bgColor: 'bg-green-50',
     },
+    {
+      icon: Shield,
+      title: 'GEO-FENCING',
+      description: 'Set safe zones and get instant notifications when you or loved ones enter or exit designated areas.',
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+    },
   ];
 
   const stats = [
@@ -294,7 +301,7 @@ const Home = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
           >
             {features.map((feature, index) => (
               <motion.div
@@ -343,7 +350,7 @@ const Home = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
           >
             {[
               {
@@ -367,13 +374,21 @@ const Home = () => {
                 description: 'Tap SOS button in emergencies and get instant help.',
                 color: 'from-red-400 to-pink-500',
               },
+              {
+                icon: Bell,
+                step: 'Step 4',
+                title: 'Get ESP32 Device',
+                description: 'Purchase and connect your ESP32 hardware device for enhanced safety features.',
+                color: 'from-purple-400 to-violet-500',
+                cta: 'Order Now',
+              },
             ].map((item, index) => (
               <motion.div
                 key={item.title}
                 variants={itemVariants}
                 className="relative text-center"
               >
-                {index < 2 && (
+                {index < 3 && (
                   <div className="hidden md:block absolute top-12 left-1/2 w-full h-0.5 bg-gradient-to-r from-gray-200 to-gray-300" />
                 )}
                 <div className="relative z-10">
@@ -386,9 +401,20 @@ const Home = () => {
                   <h3 className="text-xl font-bold text-gray-900 mb-3">
                     {item.title}
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 mb-4">
                     {item.description}
                   </p>
+                  {item.cta && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => window.open('https://wa.me/919369508929?text=Hi!%20I%27m%20interested%20in%20purchasing%20the%20ESP32%20device%20for%20Suraksha.', '_blank')}
+                      className={`inline-flex items-center gap-2 bg-gradient-to-r ${item.color} text-white font-semibold py-2.5 px-6 rounded-full shadow-lg hover:shadow-xl transition-all`}
+                    >
+                      <span>{item.cta}</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </motion.button>
+                  )}
                 </div>
               </motion.div>
             ))}

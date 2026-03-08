@@ -298,7 +298,7 @@ const Signup = () => {
               Join thousands of users who trust Suraksha
             </p>
           </div>
-
+           
           {/* Profile Photo Upload */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -334,28 +334,9 @@ const Signup = () => {
             </div>
           </div>
 
-          {/* Social Signup */}
-          <div className="mb-6">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-all"
-            >
-              <Chrome className="h-5 w-5" />
-              <span className="font-medium">Sign up with Google</span>
-            </motion.button>
-          </div>
+          
 
-          {/* Divider */}
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">Or sign up with email</span>
-            </div>
-          </div>
-
+          
           {/* Error Message */}
           {signupError && (
             <motion.div
