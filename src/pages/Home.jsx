@@ -354,33 +354,33 @@ const Home = () => {
           >
             {[
               {
-                icon: Zap,
+                icon: Bell,
                 step: 'Step 1',
+                title: 'Get Suraksha Device',
+                description: 'Purchase and connect your Suraksha hardware device for enhanced safety features.',
+                color: 'from-purple-400 to-violet-500',
+                cta: 'Order Now',
+              },
+              {
+                icon: Zap,
+                step: 'Step 2',
                 title: 'Download & Register',
                 description: 'Install the app and create your account in seconds.',
                 color: 'from-yellow-400 to-orange-500',
               },
               {
                 icon: Shield,
-                step: 'Step 2',
+                step: 'Step 3',
                 title: 'Set Up Emergency Contacts',
                 description: 'Add trusted contacts who will receive your SOS alerts.',
                 color: 'from-blue-400 to-indigo-500',
               },
               {
                 icon: Heart,
-                step: 'Step 3',
+                step: 'Step 4',
                 title: 'Stay Protected',
                 description: 'Tap SOS button in emergencies and get instant help.',
                 color: 'from-red-400 to-pink-500',
-              },
-              {
-                icon: Bell,
-                step: 'Step 4',
-                title: 'Get Suraksha Device',
-                description: 'Purchase and connect your Suraksha hardware device for enhanced safety features.',
-                color: 'from-purple-400 to-violet-500',
-                cta: 'Order Now',
               },
             ].map((item, index) => (
               <motion.div
@@ -408,7 +408,7 @@ const Home = () => {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => window.open('https://wa.me/919369508929?text=Hi!%20I%27m%20interested%20in%20purchasing%20the%20Suraksha%20device.', '_blank')}
+                      onClick={() => navigate('/get-device')}
                       className={`inline-flex items-center gap-2 bg-gradient-to-r ${item.color} text-white font-semibold py-2.5 px-6 rounded-full shadow-lg hover:shadow-xl transition-all`}
                     >
                       <span>{item.cta}</span>

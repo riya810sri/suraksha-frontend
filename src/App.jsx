@@ -16,6 +16,7 @@ const History = lazy(() => import('./pages/History'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const HackathonDemo = lazy(() => import('./pages/HackathonDemo'));
+const GetDevice = lazy(() => import('./pages/GetDevice'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -118,6 +119,7 @@ function App() {
   } 
 />
             <Route path="/hackathon-demo" element={<AnimatedPage><HackathonDemo /></AnimatedPage>} />
+            <Route path="/get-device" element={<AnimatedPage><GetDevice /></AnimatedPage>} />
             <Route path="/login" element={<AnimatedPage><Login /></AnimatedPage>} />
             <Route path="/signup" element={<AnimatedPage><Signup /></AnimatedPage>} />
           </Routes>
