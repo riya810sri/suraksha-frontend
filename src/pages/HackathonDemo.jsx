@@ -24,7 +24,7 @@ import { database, db } from '../firebase';
 import { collection, query, orderBy, limit, onSnapshot, addDoc } from 'firebase/firestore';
 
 const HackathonDemo = () => {
-  // ESP Sensor Data State
+  // Sensor Data State
   const [sensorData, setSensorData] = useState({
     temperature: 0,
     humidity: 0,
@@ -39,13 +39,13 @@ const HackathonDemo = () => {
   const [lastUpdate, setLastUpdate] = useState(null);
   const [trackedLocations, setTrackedLocations] = useState([]);
 
-  // Real-time ESP Data Listener
+  // Real-time Sensor Data Listener
   useEffect(() => {
     const sensorRef = ref(database, 'sensor');
-    
+
     const unsubscribe = onValue(sensorRef, (snapshot) => {
       const data = snapshot.val();
-      console.log('📡 ESP Sensor Data Received:', data);
+      console.log('📡 Suraksha Device Sensor Data Received:', data);
       
       if (data) {
         setSensorData({
@@ -203,7 +203,7 @@ const HackathonDemo = () => {
                 </h1>
               </div>
               <p className="text-white/90 text-sm md:text-base">
-                ESP32 → Firebase Realtime Database → Frontend Visualization
+                Suraksha Device → Firebase Realtime Database → Frontend Visualization
               </p>
             </div>
             
@@ -218,11 +218,11 @@ const HackathonDemo = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => window.open('https://wa.me/919369508929?text=Hi!%20I%27m%20interested%20in%20purchasing%20the%20ESP32%20device%20for%20Suraksha.', '_blank')}
+                onClick={() => window.open('https://wa.me/919369508929?text=Hi!%20I%27m%20interested%20in%20purchasing%20the%20Suraksha%20device.', '_blank')}
                 className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-full hover:shadow-lg transition-all"
               >
                 <ShoppingCart className="h-4 w-4" />
-                <span className="hidden sm:inline">Order ESP32</span>
+                <span className="hidden sm:inline">Order Suraksha Device</span>
               </motion.button>
 
               <motion.button
@@ -403,10 +403,10 @@ const HackathonDemo = () => {
           </h2>
           
           <div className="flex flex-wrap items-center justify-center gap-4">
-            {/* ESP32 */}
+            {/* Suraksha Device */}
             <motion.div
-              animate={{ 
-                boxShadow: isConnected 
+              animate={{
+                boxShadow: isConnected
                   ? ['0 0 20px rgba(59, 130, 246, 0.5)', '0 0 40px rgba(59, 130, 246, 0.8)', '0 0 20px rgba(59, 130, 246, 0.5)']
                   : 'none'
               }}
@@ -414,7 +414,7 @@ const HackathonDemo = () => {
               className="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-xl p-6 text-center min-w-[150px]"
             >
               <Cpu className="h-10 w-10 mx-auto mb-2" />
-              <p className="font-bold">ESP32 Device</p>
+              <p className="font-bold">Suraksha Device</p>
               <p className="text-xs opacity-80 mt-1">Sensor Data</p>
             </motion.div>
 
@@ -576,7 +576,7 @@ const HackathonDemo = () => {
               <Activity className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500 font-medium">No data received yet</p>
               <p className="text-gray-400 text-sm mt-1">
-                {simulateMode ? 'Waiting for simulated data...' : 'Connect ESP32 or enable simulation mode'}
+                {simulateMode ? 'Waiting for simulated data...' : 'Connect Suraksha Device or enable simulation mode'}
               </p>
             </div>
           )}
@@ -641,7 +641,7 @@ const HackathonDemo = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <h3 className="font-bold text-blue-400 mb-2">1. ESP32 Device</h3>
+              <h3 className="font-bold text-blue-400 mb-2">1. Suraksha Device</h3>
               <ul className="text-sm space-y-1 text-gray-300">
                 <li>• DHT11/DHT22 Sensor</li>
                 <li>• GPS Module (NEO-6M)</li>

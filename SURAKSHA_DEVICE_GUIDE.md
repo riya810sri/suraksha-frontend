@@ -1,16 +1,16 @@
-# 📡 ESP32 Integration Guide - Hackathon Demo
+# 📡 Suraksha Device Integration Guide - Hackathon Demo
 
-## Complete Documentation for ESP32 + Firebase + React Frontend
+## Complete Documentation for Suraksha Device + Firebase + React Frontend
 
 ---
 
 ## 🎯 Overview
 
-This guide explains how to connect ESP32 with sensors to Firebase Realtime Database and display live data on your React frontend dashboard.
+This guide explains how to connect the Suraksha Device with sensors to Firebase Realtime Database and display live data on your React frontend dashboard.
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌──────────────┐
-│   ESP32     │────▶│   Firebase   │────▶│ React        │
+│  Suraksha   │────▶│   Firebase   │────▶│ React        │
 │   Device    │ WiFi│   Realtime   │     │ Frontend     │
 │  (Sensors)  │     │   Database   │     │ (Dashboard)  │
 └─────────────┘     └──────────────┘     └──────────────┘
@@ -22,7 +22,7 @@ This guide explains how to connect ESP32 with sensors to Firebase Realtime Datab
 
 | Component | Quantity | Purpose |
 |-----------|----------|---------|
-| ESP32 Dev Kit | 1 | Main microcontroller |
+| Suraksha Device (ESP32 Dev Kit) | 1 | Main microcontroller |
 | DHT11/DHT22 Sensor | 1 | Temperature & Humidity |
 | NEO-6M GPS Module | 1 | GPS Location tracking |
 | Jumper Wires | 10+ | Connections |
@@ -31,7 +31,7 @@ This guide explains how to connect ESP32 with sensors to Firebase Realtime Datab
 
 ---
 
-## 🔧 ESP32 Code (Arduino IDE)
+## 🔧 Suraksha Device Code (Arduino IDE)
 
 ### Step 1: Install Required Libraries
 
@@ -41,7 +41,7 @@ Open Arduino IDE → Tools → Manage Libraries → Install:
 2. **DHT sensor library** (by Adafruit)
 3. **TinyGPSPlus** (by Mikal Hart) - for GPS
 
-### Step 2: Complete ESP32 Code
+### Step 2: Complete Suraksha Device Code
 
 ```cpp
 #include <WiFi.h>
@@ -310,7 +310,7 @@ The `HackathonDemo.jsx` page already has:
 
 ## 🎮 Testing Without Hardware (Simulation Mode)
 
-For hackathon demo, you can test without ESP32:
+For hackathon demo, you can test without Suraksha Device:
 
 1. Open your app → Go to `/hackathon-demo` route
 2. Toggle **"Simulation Mode"** checkbox
@@ -338,7 +338,7 @@ This is perfect for:
 
 3. **Dashboard** (`/dashboard`)
    - Show user stats
-   - **ESP Sensor Data Section** (highlight real-time updates)
+   - **Suraksha Device Sensor Data Section** (highlight real-time updates)
    - Emergency contacts
    - SOS button demo
 
@@ -350,7 +350,7 @@ This is perfect for:
 
 5. **Explain Technical Flow**
    ```
-   ESP32 Sensors → Firebase → React Dashboard → User Safety
+   Suraksha Device Sensors → Firebase → React Dashboard → User Safety
    ```
 
 ---
@@ -369,14 +369,14 @@ This is perfect for:
 
 ## 🐛 Troubleshooting
 
-### ESP32 Not Connecting to WiFi
+### Suraksha Device Not Connecting to WiFi
 
 ```cpp
 // Check credentials
 #define WIFI_SSID "Your_Exact_WiFi_Name"  // Case sensitive
 #define WIFI_PASSWORD "Your_Exact_Password"
 
-// Try 2.4GHz WiFi (ESP32 doesn't support 5GHz)
+// Try 2.4GHz WiFi (Suraksha Device doesn't support 5GHz)
 ```
 
 ### Firebase Connection Failed
@@ -404,7 +404,7 @@ This is perfect for:
 
 ## 📱 Demo Script for Judges
 
-> "Our solution uses IoT devices (ESP32) with temperature, humidity, and GPS sensors to provide real-time safety monitoring. When a user presses the SOS button, their location is immediately sent to emergency contacts via Firebase. The entire system works in real-time with less than 1-second latency."
+> "Our solution uses IoT devices (Suraksha Device) with temperature, humidity, and GPS sensors to provide real-time safety monitoring. When a user presses the SOS button, their location is immediately sent to emergency contacts via Firebase. The entire system works in real-time with less than 1-second latency."
 
 **Live Demo:**
 1. Show dashboard with live sensor data
@@ -415,7 +415,7 @@ This is perfect for:
 
 ## 🎯 Quick Checklist for Hackathon
 
-- [ ] ESP32 programmed and tested
+- [ ] Suraksha Device programmed and tested
 - [ ] Firebase Realtime Database enabled
 - [ ] Security rules set to test mode
 - [ ] Frontend connected to Firebase
@@ -451,7 +451,7 @@ This is perfect for:
 ## 📚 Additional Resources
 
 - [Firebase Documentation](https://firebase.google.com/docs)
-- [ESP32 Firebase Library](https://github.com/mobizt/Firebase-ESP-Client)
+- [Suraksha Device Firebase Library](https://github.com/mobizt/Firebase-ESP-Client)
 - [DHT Sensor Library](https://github.com/adafruit/DHT-sensor-library)
 - [TinyGPSPlus](https://github.com/mikalhart/TinyGPS)
 

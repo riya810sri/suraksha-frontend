@@ -122,10 +122,10 @@ const Dashboard = () => {
 
   const unsubscribe = onValue(sensorRef, (snapshot) => {
     const data = snapshot.val();
-    console.log("ESP Data:", data);
+    console.log("Suraksha Device Data:", data);
     setSensorData(data);
-    
-    // Track location when received from ESP
+
+    // Track location when received from Suraksha Device
     if (data && data.location && data.location !== "Waiting for GPS...") {
       setTrackedLocations(prev => {
         const newLocation = {
@@ -690,7 +690,7 @@ const Dashboard = () => {
                   ))}
                 </motion.div>
 
-                {/* ESP Sensor Data */}
+                {/* Suraksha Device Sensor Data */}
                 {sensorData && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -700,7 +700,7 @@ const Dashboard = () => {
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-xl font-bold text-gray-900 flex items-center space-x-2">
                         <Activity className="h-6 w-6 text-blue-600" />
-                        <span>📡 Live ESP Sensor Data</span>
+                        <span>📡 Live Suraksha Device Sensor Data</span>
                       </h2>
                       <div className="flex items-center space-x-2 px-3 py-1.5 bg-green-100 rounded-full">
                         <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse" />

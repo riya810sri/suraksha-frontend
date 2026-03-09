@@ -19,7 +19,7 @@
 ### 3. Show Dashboard
 ```
 1. Login to dashboard (/dashboard)
-2. Show ESP sensor data section
+2. Show Suraksha Device sensor data section
 3. Highlight real-time updates
 ```
 
@@ -31,7 +31,7 @@
 |------|-----|---------|
 | Home | `/` | Landing page |
 | Login | `/login` | User login |
-| Dashboard | `/dashboard` | Main dashboard with ESP data |
+| Dashboard | `/dashboard` | Main dashboard with Suraksha Device data |
 | Hackathon Demo | `/hackathon-demo` | **Best for demo!** |
 | History | `/history` | SOS alert history |
 
@@ -59,8 +59,8 @@ sos_alerts/
 
 ```
 ┌──────────────┐      ┌───────────────┐      ┌──────────────┐
-│ ESP32 Device │ ────▶│   Firebase    │ ────▶│   React      │
-│   Sensors    │ WiFi │  Realtime DB  │      │  Dashboard   │
+│ Suraksha     │ ────▶│   Firebase    │ ────▶│   React      │
+│   Device     │ WiFi │  Realtime DB  │      │  Dashboard   │
 └──────────────┘      └───────────────┘      └──────────────┘
      │                       │                       │
   Temperature            Auto-Sync              Live Display
@@ -74,7 +74,7 @@ sos_alerts/
 
 **0:00 - 0:20** → Show landing page, explain problem
 **0:20 - 0:40** → Login to dashboard
-**0:40 - 1:00** → Show ESP sensor data (live updates!)
+**0:40 - 1:00** → Show Suraksha Device sensor data (live updates!)
 **1:00 - 1:20** → Go to hackathon-demo page
 **1:20 - 1:40** → Enable simulation mode, show data flow
 **1:40 - 2:00** → Trigger SOS alert, show real-time creation
@@ -87,14 +87,14 @@ sos_alerts/
 |---------|----------|
 | No data showing? | Enable Simulation Mode |
 | Firebase error? | Check internet connection |
-| ESP not connecting? | Use simulation for demo |
+| Suraksha Device not connecting? | Use simulation for demo |
 | SOS not working? | Check Firestore rules |
 
 ---
 
 ## Backup Plan (If Hardware Fails)
 
-1. ✅ **Simulation Mode** works without ESP32
+1. ✅ **Simulation Mode** works without Suraksha Device
 2. ✅ All features demoable without hardware
 3. ✅ Firebase still receives data
 4. ✅ Dashboard shows live updates
@@ -147,7 +147,7 @@ A: "Absolutely! Firebase automatically scales to millions of users."
 - [ ] App builds without errors
 - [ ] Login/Signup works
 - [ ] Dashboard loads
-- [ ] ESP data section visible
+- [ ] Suraksha Device data section visible
 - [ ] Simulation mode tested
 - [ ] SOS alert tested
 - [ ] All animations smooth
