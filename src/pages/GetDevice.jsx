@@ -11,7 +11,7 @@ import {
   Smartphone,
   Bluetooth,
   Battery,
-  WaterDroplet,
+  Droplet,
   MapPin,
   Bell,
   Heart,
@@ -48,7 +48,7 @@ const GetDevice = () => {
     { icon: Zap, title: 'SOS Button', description: 'One-press emergency alert' },
     { icon: MapPin, title: 'GPS Tracking', description: 'Real-time location sharing' },
     { icon: Battery, title: 'Long Battery', description: 'Up to 7 days backup' },
-    { icon: WaterDroplet, title: 'Water Resistant', description: 'IP67 rated protection' },
+    { icon: Droplet, title: 'Water Resistant', description: 'IP67 rated protection' },
     { icon: Bluetooth, title: 'Bluetooth 5.0', description: 'Seamless phone connection' },
     { icon: Bell, title: 'Fall Detection', description: 'Automatic alert system' },
   ];
