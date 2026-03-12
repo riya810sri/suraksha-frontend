@@ -17,6 +17,8 @@ const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const HackathonDemo = lazy(() => import('./pages/HackathonDemo'));
 const GetDevice = lazy(() => import('./pages/GetDevice'));
+const MyDevices = lazy(() => import('./pages/MyDevices'));
+const DeviceDashboard = lazy(() => import('./components/DeviceDashboard'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -120,6 +122,26 @@ function App() {
 />
             <Route path="/hackathon-demo" element={<AnimatedPage><HackathonDemo /></AnimatedPage>} />
             <Route path="/get-device" element={<AnimatedPage><GetDevice /></AnimatedPage>} />
+            <Route 
+              path="/my-devices" 
+              element={
+                <AnimatedPage>
+                  <ProtectedRoute user={currentUser}>
+                    <MyDevices />
+                  </ProtectedRoute>
+                </AnimatedPage>
+              } 
+            />
+            <Route 
+              path="/device/:deviceId" 
+              element={
+                <AnimatedPage>
+                  <ProtectedRoute user={currentUser}>
+                    <DeviceDashboard />
+                  </ProtectedRoute>
+                </AnimatedPage>
+              } 
+            />
             <Route path="/login" element={<AnimatedPage><Login /></AnimatedPage>} />
             <Route path="/signup" element={<AnimatedPage><Signup /></AnimatedPage>} />
           </Routes>

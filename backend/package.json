@@ -1,7 +1,7 @@
 {
   "name": "suraksha-backend",
   "version": "1.0.0",
-  "description": "Backend service for SOS alerts - FREE Telegram + PAID Twilio",
+  "description": "Backend service for SOS alerts and order confirmations",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -12,10 +12,8 @@
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "node-fetch": "^3.3.2"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^6.9.7"
   },
   "optionalDependencies": {
     "twilio": "^4.19.0"

@@ -137,9 +137,57 @@ const GetDevice = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
-  const handlePlaceOrder = () => {
-    // Simulate order placement
-    setCurrentStep(5);
+  const handlePlaceOrder = async () => {
+    try {
+      // Generate order number
+      const orderNumber = `SURAKSHA-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
+      
+      // Get selected plan details
+      const plan = plans.find(p => p.id === selectedPlan);
+      
+      // Prepare order data for API
+      const orderPayload = {
+        orderData,
+        selectedPlan: plan,
+        orderNumber
+      };
+
+      // Call backend API to send order confirmation
+      const backendUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
+      
+      try {
+        const response = await fetch(`${backendUrl}/api/send-order-confirmation`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(orderPayload)
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('✅ Order confirmation sent:', result);
+        } else {
+          console.error('❌ Failed to send order confirmation');
+        }
+      } catch (apiError) {
+        console.error('❌ API error:', apiError);
+        // Continue even if API fails - order is still placed
+      }
+
+      // Save order to local storage for reference
+      localStorage.setItem('lastOrder', JSON.stringify({
+        ...orderPayload,
+        timestamp: new Date().toISOString()
+      }));
+
+      // Move to success screen
+      setCurrentStep(5);
+      
+    } catch (error) {
+      console.error('❌ Order placement error:', error);
+      alert('There was an error placing your order. Please try again.');
+    }
   };
 
   // Step 1: Order Selection
@@ -718,7 +766,14 @@ const GetDevice = () => {
   );
 
   // Step 5: Success
-  const SuccessStep = () => (
+  const SuccessStep = () => {
+    // Get order number from localStorage
+    const lastOrder = JSON.parse(localStorage.getItem('lastOrder') || '{}');
+    const [orderNumber] = useState(() => 
+      lastOrder.orderNumber || `SURAKSHA-${Math.random().toString(36).substr(2, 8).toUpperCase()}`
+    );
+
+    return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -748,7 +803,7 @@ const GetDevice = () => {
         transition={{ delay: 0.3 }}
         className="text-gray-600 mb-8"
       >
-        Thank you for ordering! We'll send you a confirmation email and SMS shortly.
+        Thank you for ordering! We've sent a confirmation email and WhatsApp message to your registered contact details.
       </motion.p>
 
       <motion.div
@@ -758,7 +813,7 @@ const GetDevice = () => {
         className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 mb-8"
       >
         <p className="text-sm text-gray-600 mb-2">Order Reference</p>
-        <p className="text-2xl font-bold text-purple-600">SURAKSHA-{Math.random().toString(36).substr(2, 8).toUpperCase()}</p>
+        <p className="text-2xl font-bold text-purple-600">{orderNumber}</p>
       </motion.div>
 
       <motion.div
@@ -786,7 +841,8 @@ const GetDevice = () => {
         </motion.button>
       </motion.div>
     </motion.div>
-  );
+    );
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-pink-50">

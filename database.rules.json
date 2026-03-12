@@ -1,0 +1,56 @@
+{
+  "rules": {
+    "users": {
+      "$userId": {
+        "devices": {
+          "$deviceId": {
+            ".read": "$userId === auth.uid",
+            ".write": "$userId === auth.uid",
+            "sensors": {
+              ".read": "$userId === auth.uid",
+              ".write": true
+            },
+            "location": {
+              ".read": "$userId === auth.uid",
+              ".write": true
+            },
+            "status": {
+              ".read": "$userId === auth.uid",
+              ".write": true
+            },
+            "sos": {
+              ".read": "$userId === auth.uid",
+              ".write": true
+            }
+          }
+        }
+      }
+    },
+    "devices": {
+      "$deviceId": {
+        ".read": true,
+        ".write": false,
+        "sensors": {
+          ".read": true,
+          ".write": true
+        },
+        "location": {
+          ".read": true,
+          ".write": true
+        },
+        "status": {
+          ".read": true,
+          ".write": true
+        },
+        "sos": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    },
+    "publicDevices": {
+      ".read": true,
+      ".write": false
+    }
+  }
+}

@@ -14,11 +14,14 @@ const Header = () => {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Suraksha Map', path: '/public-map' },
     { name: 'Dashboard', path: '/dashboard' },
+    { name: 'Suraksha-Map', path: '/public-map' },
+    { name: 'Devices', path: '/my-devices' },
+  ];
+
+  const moreLinks = [
     { name: 'Community', path: '/community' },
     { name: 'History', path: '/history' },
-    { name: 'Demo', path: '/hackathon-demo' },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -83,55 +86,75 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`nav-link font-medium transition-colors duration-300 ${
+                className={`font-semibold transition-colors duration-300 text-sm ${
                   isActive(link.path)
                     ? 'text-primary-600'
                     : isScrolled || location.pathname !== '/'
-                      ? 'text-gray-700 hover:text-primary-600'
+                      ? 'text-gray-600 hover:text-primary-600'
                       : 'text-white/90 hover:text-white'
                 }`}
               >
                 {link.name}
               </Link>
             ))}
+            
+            {/* More Dropdown */}
+            <div className="relative group">
+              <button className={`font-semibold transition-colors duration-300 text-sm flex items-center space-x-1 ${
+                isScrolled || location.pathname !== '/'
+                  ? 'text-gray-600 hover:text-primary-600'
+                  : 'text-white/90 hover:text-white'
+              }`}>
+                <span>More</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
+                <div className="py-2">
+                  {moreLinks.map((link) => (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      className={`block px-4 py-2 text-sm transition-colors ${
+                        isActive(link.path)
+                          ? 'bg-primary-50 text-primary-600'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-3">
             {currentUser ? (
               <>
-                <Link to="/dashboard">
+                <Link to="/dashboard" className="flex items-center">
                   <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="flex items-center space-x-2 cursor-pointer"
+                    whileHover={{ scale: 1.1 }}
+                    className="w-9 h-9 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-md border-2 border-white cursor-pointer"
                   >
-                    <div className="w-9 h-9 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-                      <UserIcon className="h-5 w-5 text-white" />
-                    </div>
-                    <span className={`font-extrabold text-base md:text-lg ${
-                      isScrolled ? 'text-gray-900' : 'text-white'
-                    } drop-shadow-sm`}>
-                      {currentUser.displayName || currentUser.email}
-                    </span>
+                    <UserIcon className="h-4 w-4 text-white" />
                   </motion.div>
                 </Link>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleLogout}
-                  className={`px-5 py-2 font-bold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl flex items-center space-x-2 ${
-                    isScrolled
-                      ? 'bg-red-600 text-white hover:bg-red-700'
-                      : 'bg-white text-red-600 hover:bg-white/90'
-                  }`}
+                  className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-all shadow-md flex items-center space-x-2 text-sm"
                 >
-                  <LogOut className="h-5 w-5" />
-                  <span className="font-bold">Logout</span>
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
                 </motion.button>
               </>
             ) : (
@@ -140,11 +163,7 @@ const Header = () => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`px-5 py-2 font-semibold border-2 rounded-lg transition-all duration-300 ${
-                      isScrolled
-                        ? 'text-primary-600 border-primary-600 hover:bg-primary-50'
-                        : 'text-white border-white hover:bg-white/20'
-                    }`}
+                    className="px-4 py-2 text-sm font-semibold border-2 border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 transition-all"
                   >
                     Log In
                   </motion.button>
@@ -191,7 +210,7 @@ const Header = () => {
               transition={{ duration: 0.3 }}
               className="md:hidden overflow-hidden"
             >
-              <div className="py-4 space-y-3">
+              <div className="py-4 space-y-2">
                 {navLinks.map((link, index) => (
                   <motion.div
                     key={link.path}
@@ -202,7 +221,7 @@ const Header = () => {
                     <Link
                       to={link.path}
                       onClick={() => setIsMenuOpen(false)}
-                      className={`block px-4 py-2 rounded-lg ${
+                      className={`block px-4 py-2.5 rounded-lg font-semibold ${
                         isActive(link.path)
                           ? 'bg-primary-50 text-primary-600'
                           : 'text-gray-700 hover:bg-gray-50'
@@ -212,6 +231,30 @@ const Header = () => {
                     </Link>
                   </motion.div>
                 ))}
+                {/* More Links in Mobile */}
+                <div className="pt-2 pb-2">
+                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">More</div>
+                  {moreLinks.map((link, index) => (
+                    <motion.div
+                      key={link.path}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Link
+                        to={link.path}
+                        onClick={() => setIsMenuOpen(false)}
+                        className={`block px-4 py-2 rounded-lg ${
+                          isActive(link.path)
+                            ? 'bg-primary-50 text-primary-600'
+                            : 'text-gray-700 hover:bg-gray-50'
+                        } transition-colors`}
+                      >
+                        {link.name}
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
                 <div className="pt-4 space-y-3 px-4">
                   {currentUser ? (
                     <>

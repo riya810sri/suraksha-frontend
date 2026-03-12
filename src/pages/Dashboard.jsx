@@ -21,7 +21,8 @@ import {
   Thermometer,
   Droplets,
   Cpu,
-  Wifi
+  Wifi,
+  ArrowRight
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { auth } from '../firebase';
@@ -792,6 +793,32 @@ const Dashboard = () => {
                     )}
                   </motion.div>
                 )}
+
+                {/* My Devices Quick Access Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  whileHover={{ scale: 1.02, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+                  className="bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 rounded-xl shadow-lg p-6 mb-8 border-2 border-purple-200 cursor-pointer"
+                  onClick={() => navigate('/my-devices')}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
+                        <Shield className="h-8 w-8 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900">My Suraksha Devices</h3>
+                        <p className="text-sm text-gray-600">Manage and monitor your connected devices</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2 text-purple-600">
+                      <span className="font-semibold">View All</span>
+                      <ArrowRight className="h-5 w-5" />
+                    </div>
+                  </div>
+                </motion.div>
 
                 {/* Emergency Contacts & Activity */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

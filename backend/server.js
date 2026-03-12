@@ -1,7 +1,8 @@
 /**
  * Suraksha Backend Server
  * Handles SOS alerts - sends SMS, Calls, WhatsApp & Telegram messages
- * 
+ * Handles Order Confirmations - sends Email & WhatsApp messages
+ *
  * FREE Mode: Telegram & Email (no cost)
  * PAID Mode: Twilio SMS & Calls (requires credits)
  */
@@ -10,6 +11,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
+import nodemailer from 'nodemailer';
 
 dotenv.config();
 
@@ -26,6 +28,28 @@ app.use(express.json());
 // Telegram Configuration
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
+
+// Email Configuration (Nodemailer)
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+const EMAIL_HOST = process.env.EMAIL_HOST || 'smtp.gmail.com';
+const EMAIL_PORT = process.env.EMAIL_PORT || 587;
+
+// WhatsApp Configuration (Twilio)
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
+
+// Initialize email transporter
+const emailTransporter = nodemailer.createTransport({
+  host: EMAIL_HOST,
+  port: EMAIL_PORT,
+  secure: EMAIL_PORT === '465',
+  auth: {
+    user: EMAIL_USER,
+    pass: EMAIL_PASS
+  }
+});
 
 /**
  * POST /api/send-telegram-alert
@@ -272,6 +296,352 @@ app.post('/api/send-sos-alert', async (req, res) => {
 });
 
 /**
+ * POST /api/send-order-confirmation
+ * Sends order confirmation email and WhatsApp message to customer
+ * Also sends admin notification email
+ */
+app.post('/api/send-order-confirmation', async (req, res) => {
+  try {
+    const { orderData, selectedPlan, orderNumber } = req.body;
+
+    if (!orderData || !orderData.email || !orderData.phone) {
+      return res.status(400).json({
+        success: false,
+        error: 'Order data with email and phone is required'
+      });
+    }
+
+    const results = {
+      emailSent: false,
+      whatsappSent: false,
+      adminNotified: false,
+      details: {}
+    };
+
+    const plan = selectedPlan;
+    const customerName = orderData.name;
+    const customerEmail = orderData.email;
+    const customerPhone = orderData.phone;
+
+    // Send Email Confirmation to Customer
+    try {
+      if (EMAIL_USER && EMAIL_PASS) {
+        const emailHtml = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; }
+                .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                .header { background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%); padding: 40px 20px; text-align: center; color: white; }
+                .header h1 { margin: 0; font-size: 28px; }
+                .content { padding: 40px 30px; }
+                .order-number { background: #f3e8ff; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 30px; }
+                .order-number span { color: #9333ea; font-size: 24px; font-weight: bold; }
+                .plan-details { background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+                .plan-name { font-size: 20px; font-weight: bold; color: #1f2937; margin-bottom: 10px; }
+                .plan-price { font-size: 28px; font-weight: bold; color: #dc2626; }
+                .shipping-details { background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+                .shipping-details h3 { margin-top: 0; color: #374151; }
+                .footer { background: #f3f4f6; padding: 20px; text-align: center; color: #6b7280; font-size: 14px; }
+                .button { display: inline-block; background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 20px; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>🎉 Order Confirmed!</h1>
+                  <p>Thank you for choosing Suraksha</p>
+                </div>
+                <div class="content">
+                  <p>Dear ${customerName},</p>
+                  <p>Your order has been placed successfully! We're committed to ensuring your safety and security.</p>
+                  
+                  <div class="order-number">
+                    <p style="margin: 0; color: #6b7280;">Order Number</p>
+                    <span>${orderNumber}</span>
+                  </div>
+
+                  <div class="plan-details">
+                    <div class="plan-name">${plan.name}</div>
+                    <div class="plan-price">${plan.price}</div>
+                    <ul style="margin: 15px 0; padding-left: 20px; color: #4b5563;">
+                      ${plan.features.map(f => `<li>${f}</li>`).join('')}
+                    </ul>
+                  </div>
+
+                  <div class="shipping-details">
+                    <h3>📍 Shipping Address</h3>
+                    <p style="color: #374151; line-height: 1.6;">
+                      ${customerName}<br>
+                      ${orderData.address}<br>
+                      ${orderData.city} - ${orderData.pincode}<br>
+                      📞 ${customerPhone}
+                    </p>
+                  </div>
+
+                  <div style="text-align: center;">
+                    <p style="color: #059669; font-weight: bold;">✅ Payment Method: ${orderData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
+                  </div>
+
+                  <div style="text-align: center;">
+                    <a href="tel:+919369508929" class="button">📞 Contact Support</a>
+                  </div>
+
+                  <p style="margin-top: 30px; color: #6b7280; font-size: 14px;">
+                    Your device will be shipped within 24-48 hours. You'll receive a tracking number once your order is dispatched.
+                  </p>
+                </div>
+                <div class="footer">
+                  <p>Suraksha - Your Safety, Our Priority</p>
+                  <p>Need help? Contact us at support@suraksha.com or call +91 93695 08929</p>
+                </div>
+              </div>
+            </body>
+          </html>
+        `;
+
+        await emailTransporter.sendMail({
+          from: `"Suraksha Safety" <${EMAIL_USER}>`,
+          to: customerEmail,
+          subject: `🎉 Order Confirmed! - ${orderNumber}`,
+          text: `
+            Dear ${customerName},
+
+            Your order has been placed successfully!
+
+            Order Number: ${orderNumber}
+            Plan: ${plan.name}
+            Price: ${plan.price}
+
+            Shipping Address:
+            ${customerName}
+            ${orderData.address}
+            ${orderData.city} - ${orderData.pincode}
+            Phone: ${customerPhone}
+
+            Payment Method: ${orderData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
+
+            Your device will be shipped within 24-48 hours.
+
+            Thank you for choosing Suraksha!
+          `,
+          html: emailHtml
+        });
+
+        results.emailSent = true;
+        results.details.email = { success: true, to: customerEmail };
+        console.log(`✅ Order confirmation email sent to ${customerEmail}`);
+      } else {
+        results.details.email = { success: false, error: 'Email not configured' };
+        console.warn('⚠️ Email not configured, skipping email');
+      }
+    } catch (emailError) {
+      results.details.email = { success: false, error: emailError.message };
+      console.error('❌ Email error:', emailError.message);
+    }
+
+    // Send WhatsApp Message to Customer via Twilio
+    try {
+      if (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER) {
+        const twilio = (await import('twilio')).default;
+        const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+
+        // Format phone number
+        let formattedPhone = customerPhone.replace(/[^\d+]/g, '');
+        if (!formattedPhone.startsWith('+') && formattedPhone.length === 10) {
+          formattedPhone = '+91' + formattedPhone;
+        }
+
+        const whatsappMessage = `🎉 *Order Confirmed!* 🎉
+
+Dear ${customerName},
+
+Thank you for ordering *${plan.name}*!
+
+📦 *Order Number:* ${orderNumber}
+💰 *Price:* ${plan.price}
+
+📍 *Shipping Address:*
+${customerName}
+${orderData.address}
+${orderData.city} - ${orderData.pincode}
+📞 ${customerPhone}
+
+💵 *Payment:* ${orderData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
+
+Your device will be shipped within 24-48 hours. You'll receive a tracking number once dispatched.
+
+Need help? Call us at +91 93695 08929
+
+Thank you for choosing *Suraksha*! 🛡️`;
+
+        await twilioClient.messages.create({
+          from: `whatsapp:${TWILIO_PHONE_NUMBER}`,
+          to: `whatsapp:${formattedPhone}`,
+          body: whatsappMessage
+        });
+
+        results.whatsappSent = true;
+        results.details.whatsapp = { success: true, to: formattedPhone };
+        console.log(`✅ WhatsApp message sent to ${formattedPhone}`);
+      } else {
+        results.details.whatsapp = { success: false, error: 'Twilio not configured' };
+        console.warn('⚠️ Twilio not configured, skipping WhatsApp');
+      }
+    } catch (whatsappError) {
+      results.details.whatsapp = { success: false, error: whatsappError.message };
+      console.error('❌ WhatsApp error:', whatsappError.message);
+    }
+
+    // Send Admin Notification Email
+    try {
+      if (EMAIL_USER && EMAIL_PASS && process.env.ADMIN_EMAIL) {
+        const adminEmail = process.env.ADMIN_EMAIL;
+        
+        const adminEmailHtml = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; }
+                .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                .header { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); padding: 40px 20px; text-align: center; color: white; }
+                .header h1 { margin: 0; font-size: 28px; }
+                .content { padding: 40px 30px; }
+                .alert-box { background: #fef2f2; border-left: 4px solid #dc2626; padding: 15px; margin-bottom: 20px; }
+                .order-number { background: #f3e8ff; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+                .order-number span { color: #9333ea; font-size: 24px; font-weight: bold; }
+                .customer-info { background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+                .customer-info h3 { margin-top: 0; color: #374151; }
+                .order-details { background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+                .action-required { background: #fef3c7; border: 2px dashed #f59e0b; padding: 20px; border-radius: 8px; text-align: center; margin-top: 20px; }
+                .action-required h3 { margin: 0 0 10px 0; color: #92400e; }
+                .button { display: inline-block; background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 10px; }
+                .footer { background: #f3f4f6; padding: 20px; text-align: center; color: #6b7280; font-size: 14px; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>📦 New Order Received!</h1>
+                  <p>Action Required: Process this order</p>
+                </div>
+                <div class="content">
+                  <div class="alert-box">
+                    <strong>⚠️ New order needs to be processed!</strong>
+                  </div>
+
+                  <div class="order-number">
+                    <p style="margin: 0; color: #6b7280;">Order Number</p>
+                    <span>${orderNumber}</span>
+                  </div>
+
+                  <div class="order-details">
+                    <h3 style="margin-top: 0; color: #1f2937;">📋 Order Details</h3>
+                    <p style="margin: 5px 0;"><strong>Plan:</strong> ${plan.name}</p>
+                    <p style="margin: 5px 0;"><strong>Price:</strong> ${plan.price}</p>
+                    <p style="margin: 5px 0;"><strong>Payment Method:</strong> ${orderData.paymentMethod === 'cod' ? '💵 Cash on Delivery' : '💳 Online Payment'}</p>
+                    <p style="margin: 5px 0;"><strong>Order Date:</strong> ${new Date().toLocaleString('en-IN')}</p>
+                  </div>
+
+                  <div class="customer-info">
+                    <h3>👤 Customer Information</h3>
+                    <p style="margin: 5px 0;"><strong>Name:</strong> ${customerName}</p>
+                    <p style="margin: 5px 0;"><strong>Email:</strong> ${customerEmail}</p>
+                    <p style="margin: 5px 0;"><strong>Phone:</strong> ${customerPhone}</p>
+                    <hr style="margin: 15px 0; border: none; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 5px 0;"><strong>Shipping Address:</strong></p>
+                    <p style="color: #374151; line-height: 1.6; margin-left: 10px;">
+                      ${orderData.address}<br>
+                      ${orderData.city} - ${orderData.pincode}
+                    </p>
+                  </div>
+
+                  <div class="action-required">
+                    <h3>✅ Action Required</h3>
+                    <p style="color: #92400e; margin: 10px 0;">Please process this order within 24 hours</p>
+                    <p style="font-size: 14px; color: #6b7280;">
+                      1. Verify payment (if online)<br>
+                      2. Pack the device<br>
+                      3. Generate shipping label<br>
+                      4. Update tracking information
+                    </p>
+                    <a href="mailto:${customerEmail}" class="button">📧 Contact Customer</a>
+                  </div>
+
+                  <p style="margin-top: 30px; color: #6b7280; font-size: 14px;">
+                    This is an automated notification from Suraksha Order Management System.
+                  </p>
+                </div>
+                <div class="footer">
+                  <p>Suraksha Order Management System</p>
+                  <p>Need help? Contact support at support@suraksha.com</p>
+                </div>
+              </div>
+            </body>
+          </html>
+        `;
+
+        await emailTransporter.sendMail({
+          from: `"Suraksha Orders" <${EMAIL_USER}>`,
+          to: adminEmail,
+          subject: `📦 NEW ORDER ALERT! - ${orderNumber} - Action Required`,
+          text: `
+            NEW ORDER RECEIVED!
+
+            Order Number: ${orderNumber}
+            Order Date: ${new Date().toLocaleString('en-IN')}
+
+            CUSTOMER DETAILS:
+            Name: ${customerName}
+            Email: ${customerEmail}
+            Phone: ${customerPhone}
+
+            ORDER DETAILS:
+            Plan: ${plan.name}
+            Price: ${plan.price}
+            Payment: ${orderData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
+
+            SHIPPING ADDRESS:
+            ${orderData.address}
+            ${orderData.city} - ${orderData.pincode}
+
+            ACTION REQUIRED: Please process this order within 24 hours.
+          `,
+          html: adminEmailHtml,
+          priority: 'high'
+        });
+
+        results.adminNotified = true;
+        results.details.admin = { success: true, to: adminEmail };
+        console.log(`✅ Admin notification sent to ${adminEmail}`);
+      } else {
+        results.details.admin = { success: false, error: 'Admin email not configured' };
+        console.warn('⚠️ Admin email not configured, skipping admin notification');
+      }
+    } catch (adminError) {
+      results.details.admin = { success: false, error: adminError.message };
+      console.error('❌ Admin notification error:', adminError.message);
+    }
+
+    // Return results
+    res.json({
+      success: true,
+      message: 'Order confirmation processed',
+      ...results
+    });
+
+  } catch (error) {
+    console.error('❌ Order Confirmation Error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
  * GET /api/health
  * Health check endpoint
  */
@@ -288,6 +658,8 @@ app.get('/api/health', (req, res) => {
 app.listen(PORT, () => {
   console.log('🚀 Suraksha Backend Server');
   console.log(`📡 Running on http://localhost:${PORT}`);
-  console.log(`💰 Mode: ${TELEGRAM_BOT_TOKEN ? 'FREE (Telegram)' : 'Twilio not configured'}`);
-  console.log('\n✅ Ready to send SOS alerts!');
+  console.log(`📧 Email: ${EMAIL_USER && EMAIL_PASS ? '✅ Configured' : '⚠️ Not configured'}`);
+  console.log(`💬 WhatsApp: ${TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER ? '✅ Configured' : '⚠️ Not configured'}`);
+  console.log(`📱 Telegram: ${TELEGRAM_BOT_TOKEN ? '✅ Configured' : '⚠️ Not configured'}`);
+  console.log('\n✅ Ready to send SOS alerts and order confirmations!');
 });
