@@ -141,10 +141,10 @@ const GetDevice = () => {
     try {
       // Generate order number
       const orderNumber = `SURAKSHA-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
-      
+
       // Get selected plan details
       const plan = plans.find(p => p.id === selectedPlan);
-      
+
       // Prepare order data for API
       const orderPayload = {
         orderData,
@@ -154,7 +154,7 @@ const GetDevice = () => {
 
       // Call backend API to send order confirmation
       const backendUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
-      
+
       try {
         const response = await fetch(`${backendUrl}/api/send-order-confirmation`, {
           method: 'POST',
@@ -181,9 +181,48 @@ const GetDevice = () => {
         timestamp: new Date().toISOString()
       }));
 
+      // 📱 Redirect to WhatsApp with order details
+      const sellerPhone = '919369508929'; // Seller's WhatsApp number
+      
+      // Create WhatsApp message with all order details
+      const whatsappMessage = `🎉 *NEW ORDER RECEIVED!* 🎉
+
+📋 *Order Details:*
+━━━━━━━━━━━━━━━━━━━━
+*Order ID:* ${orderNumber}
+*Plan:* ${plan.name}
+*Price:* ${plan.price}
+*Payment:* ${orderData.paymentMethod === 'cod' ? '💵 Cash on Delivery' : '💳 Online Payment'}
+
+👤 *Customer Details:*
+━━━━━━━━━━━━━━━━━━━━
+*Name:* ${orderData.name}
+*Email:* ${orderData.email}
+*Phone:* ${orderData.phone}
+
+📍 *Shipping Address:*
+━━━━━━━━━━━━━━━━━━━━
+${orderData.address}
+${orderData.city} - ${orderData.pincode}
+${orderData.state || ''}
+
+⚡ *Action Required:*
+Please process this order within 24 hours.
+
+_This is an automated message from Suraksha Order System_`;
+
+      // Encode message for URL
+      const encodedMessage = encodeURIComponent(whatsappMessage);
+      
+      // Create WhatsApp URL
+      const whatsappUrl = `https://wa.me/${sellerPhone}?text=${encodedMessage}`;
+      
+      // Open WhatsApp in new tab
+      window.open(whatsappUrl, '_blank');
+
       // Move to success screen
       setCurrentStep(5);
-      
+
     } catch (error) {
       console.error('❌ Order placement error:', error);
       alert('There was an error placing your order. Please try again.');
@@ -825,10 +864,35 @@ const GetDevice = () => {
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={() => window.open('https://wa.me/919369508929?text=Hi!%20I\'ve%20placed%20an%20order%20for%20Suraksha%20device.', '_blank')}
+          onClick={() => {
+            const sellerPhone = '919369508929';
+            const whatsappMessage = `🎉 *NEW ORDER RECEIVED!* 🎉
+
+📋 *Order Details:*
+━━━━━━━━━━━━━━━━━━━━
+*Order ID:* ${orderNumber}
+*Plan:* ${plans.find(p => p.id === selectedPlan)?.name || 'Selected Plan'}
+*Price:* ${plans.find(p => p.id === selectedPlan)?.price || '₹0'}
+*Payment:* ${orderData.paymentMethod === 'cod' ? '💵 Cash on Delivery' : '💳 Online Payment'}
+
+👤 *Customer Details:*
+━━━━━━━━━━━━━━━━━━━━
+*Name:* ${orderData.name}
+*Email:* ${orderData.email}
+*Phone:* ${orderData.phone}
+
+📍 *Shipping Address:*
+━━━━━━━━━━━━━━━━━━━━
+${orderData.address}
+${orderData.city} - ${orderData.pincode}
+
+⚡ *Action Required:*
+Please process this order within 24 hours.`;
+            window.open(`https://wa.me/${sellerPhone}?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+          }}
           className="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
         >
-          <span>📱 Contact on WhatsApp</span>
+          <span>📱 Notify Seller on WhatsApp</span>
         </motion.button>
 
         <motion.button

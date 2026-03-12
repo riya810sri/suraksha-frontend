@@ -35,6 +35,10 @@ const EMAIL_PASS = process.env.EMAIL_PASS;
 const EMAIL_HOST = process.env.EMAIL_HOST || 'smtp.gmail.com';
 const EMAIL_PORT = process.env.EMAIL_PORT || 587;
 
+// Admin/Seller Email Configuration
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || process.env.SELLER_EMAIL;
+const SELLER_EMAIL = process.env.SELLER_EMAIL || process.env.ADMIN_EMAIL;
+
 // WhatsApp Configuration (Twilio)
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
@@ -494,11 +498,18 @@ Thank you for choosing *Suraksha*! 🛡️`;
       console.error('❌ WhatsApp error:', whatsappError.message);
     }
 
-    // Send Admin Notification Email
+    // Send Admin/Seller Notification Email
     try {
-      if (EMAIL_USER && EMAIL_PASS && process.env.ADMIN_EMAIL) {
-        const adminEmail = process.env.ADMIN_EMAIL;
-        
+      // Send to both Admin and Seller
+      const recipientEmails = [];
+      if (process.env.ADMIN_EMAIL) recipientEmails.push(process.env.ADMIN_EMAIL);
+      if (process.env.SELLER_EMAIL && process.env.SELLER_EMAIL !== process.env.ADMIN_EMAIL) {
+        recipientEmails.push(process.env.SELLER_EMAIL);
+      }
+      
+      if (recipientEmails.length > 0 && EMAIL_USER && EMAIL_PASS) {
+        const adminEmail = recipientEmails.join(',');
+
         const adminEmailHtml = `
           <!DOCTYPE html>
           <html>
@@ -615,10 +626,10 @@ Thank you for choosing *Suraksha*! 🛡️`;
 
         results.adminNotified = true;
         results.details.admin = { success: true, to: adminEmail };
-        console.log(`✅ Admin notification sent to ${adminEmail}`);
+        console.log(`✅ Admin/Seller notification sent to: ${recipientEmails.join(', ')}`);
       } else {
-        results.details.admin = { success: false, error: 'Admin email not configured' };
-        console.warn('⚠️ Admin email not configured, skipping admin notification');
+        results.details.admin = { success: false, error: 'Admin/Seller email not configured' };
+        console.warn('⚠️ Admin/Seller email not configured, skipping notification');
       }
     } catch (adminError) {
       results.details.admin = { success: false, error: adminError.message };
