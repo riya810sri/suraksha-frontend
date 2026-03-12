@@ -3,12 +3,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Menu, X, LogOut, User as UserIcon } from 'lucide-react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -27,10 +29,27 @@ const Header = () => {
   const isActive = (path) => location.pathname === path;
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
+      
+      // Listen to user profile changes
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+        const unsubscribeProfile = onSnapshot(userRef, (docSnapshot) => {
+          if (docSnapshot.exists()) {
+            setUserProfile(docSnapshot.data());
+          } else {
+            setUserProfile(null);
+          }
+        });
+        
+        return () => unsubscribeProfile();
+      } else {
+        setUserProfile(null);
+      }
     });
-    return () => unsubscribe();
+    
+    return () => unsubscribeAuth();
   }, []);
 
   useEffect(() => {
@@ -142,9 +161,19 @@ const Header = () => {
                 <Link to="/dashboard" className="flex items-center">
                   <motion.div
                     whileHover={{ scale: 1.1 }}
-                    className="w-9 h-9 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-md border-2 border-white cursor-pointer"
+                    className="relative"
                   >
-                    <UserIcon className="h-4 w-4 text-white" />
+                    {userProfile?.photoURL ? (
+                      <img
+                        src={userProfile.photoURL}
+                        alt="Profile"
+                        className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-md"
+                      />
+                    ) : (
+                      <div className="w-9 h-9 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+                        <UserIcon className="h-4 w-4 text-white" />
+                      </div>
+                    )}
                   </motion.div>
                 </Link>
                 <motion.button
@@ -259,8 +288,18 @@ const Header = () => {
                   {currentUser ? (
                     <>
                       <div className="flex items-center space-x-3 px-4 py-3 bg-white rounded-lg border-2 border-gray-300 shadow-md">
-                        <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-lg border-2 border-white flex-shrink-0">
-                          <UserIcon className="h-6 w-6 text-white" />
+                        <div className="relative flex-shrink-0">
+                          {userProfile?.photoURL ? (
+                            <img
+                              src={userProfile.photoURL}
+                              alt="Profile"
+                              className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                              <UserIcon className="h-6 w-6 text-white" />
+                            </div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-extrabold text-gray-900 text-base truncate drop-shadow-sm">
